@@ -70,6 +70,8 @@ def making_it_happen():
 @recommendationRoute.route('/recommend/<servico>')
 def recommend(servico):
     model, service_pivot = making_it_happen()
-    distances, suggestions = model.kneighbors(service_pivot.filter(items=[servico], axis=0).values.reshape(1, -1))
+    distances, suggestions = model.kneighbors(service_pivot.filter(items=['servico'], axis=0).values.reshape(1, -1))
     for i in range(len(suggestions)):
-        return print(service_pivot.index[suggestions[i]])
+        suggestion = service_pivot.index[suggestions[i]]
+        print(suggestion)
+        return suggestion
