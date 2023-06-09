@@ -3,16 +3,19 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from scipy.sparse import csr_matrix
 from flask import Blueprint
+import os
 
 recommendationRoute = Blueprint("recommendationRoute", __name__)
 
 
 def making_it_happen():
+    path_dir = os.path.dirname(os.path.abspath(__file__))
+
     # Importação dos serviços de bancos categorizados
-    services = pd.read_csv("src/mlops/consolidado_Servicos_categoria_id.csv", encoding="utf-8", sep=";",
+    services = pd.read_csv(os.path.join(path_dir, "consolidado_Servicos_categoria_id.csv"), encoding="utf-8", sep=";",
                            on_bad_lines='skip')
     # Importação dos dados referentes às notas de serviços de bancos
-    ratings = pd.read_csv("src/mlops/service_ratings_category.csv", sep=";", encoding="latin-1",
+    ratings = pd.read_csv(os.path.join(path_dir, "service_ratings_category.csv"), encoding="latin-1", sep=";",
                           on_bad_lines='skip')
     services = services[['Cnpj', 'BancoID', 'RazaoSocial', 'ValorMaximo', 'ListaServiço', 'Categoria']]
     services.rename(
@@ -65,8 +68,8 @@ def making_it_happen():
 
 
 @recommendationRoute.route('/recommend/<servico>')
-def recommend():
+def recommend(servico):
     model, service_pivot = making_it_happen()
-    distances, suggestions = model.kneighbors(service_pivot.filter(items=['servico'], axis=0).values.reshape(1, -1))
+    distances, suggestions = model.kneighbors(service_pivot.filter(items=[servico], axis=0).values.reshape(1, -1))
     for i in range(len(suggestions)):
         return print(service_pivot.index[suggestions[i]])
